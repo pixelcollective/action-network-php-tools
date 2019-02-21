@@ -2,6 +2,29 @@
 
 namespace TinyPixel\ActionNetwork;
 
+/**
+ * function TinyPixel\ActionNetwork\checkAPI
+ *
+ * @param [type] $api_key
+ * @return void
+ */
+function checkAPI($api_key)
+{
+    if ($api_key) :
+        return $api_key;
+    else :
+        trigger_error(
+            $this->errors->api->no_api_key,
+            E_USER_ERROR
+        );
+    endif;
+}
+
+/**
+ * function TinyPixel\ActionNetwork\getErrorDefinitions
+ *
+ * @return object error_defintions
+ */
 function getErrorDefinitions()
 {
     return (object) [
@@ -23,7 +46,7 @@ function getErrorDefinitions()
 }
 
 /**
- * getResourceId
+ * function TinyPixel\ActionNetwork\getResourceId
  *
  * helper functions for collections
  *
@@ -44,7 +67,7 @@ function getResourceId($resource)
 }
 
 /**
- * getResourceTitle
+ * function TinyPixel\ActionNetwork\getResourceTitle
  *
  * @param mixed $resource
  *

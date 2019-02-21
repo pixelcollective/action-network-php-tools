@@ -25,27 +25,37 @@ use \GuzzleHttp\Stream\Stream;
  **/
 class ActionNetwork
 {
-    protected $api_key;
+    private static $instance;
+    protected static $api_key;
+    protected $guzzle;
+
     protected $api_version  = '2';
     protected $api_base_url = 'https://actionnetwork.org/api/v2/';
     protected $errors;
 
-    protected $guzzle;
-
     public function __construct($api_key = null)
     {
-        if (!extension_loaded('curl')) :
-            trigger_error(($this->errors->php->cURL), E_USER_ERROR);
-        endif;
-
-        if ($api_key) :
-            $this->api_key = $api_key;
-        else :
-            trigger_error($this->errors->api->no_api_key, E_USER_ERROR);
-        endif;
-
-        $this->guzzle = new \GuzzleHttp\Client();
         $this->errors = getErrorDefinitions();
+        $this->guzzle = new \GuzzleHttp\Client();
+    }
+
+    /**
+     * getInstance
+     *
+     * Share singular Action Network
+     * connection to all subpackages
+     *
+     * @param [type] $api_key
+     * @return void
+     */
+    public static function getInstance($api_key = null)
+    {
+        if (!isset(self::$instance)) :
+            self::$api_key = checkAPI($api_key);
+            self::$instance = new ActionNetwork($api_key);
+        endif;
+
+        return self::$instance;
     }
 
     /**
@@ -77,7 +87,7 @@ class ActionNetwork
                     'headers' => [
                         'User-Agent'     => 'testing/1.0',
                         'Accept'         => 'application/json',
-                        'OSDI-API-Token' => $this->api_key,
+                        'OSDI-API-Token' => $this::$api_key,
                         'Content-Length' => strlen(json_encode($req)),
                         'JSON'           => json_encode($req),
                     ],
@@ -91,7 +101,7 @@ class ActionNetwork
                     'headers' => [
                         'User-Agent'     => 'testing/1.0',
                         'Accept'         => 'application/json',
-                        'OSDI-API-Token' => $this->api_key,
+                        'OSDI-API-Token' => $this::$api_key,
                         'JSON'           => $req,
                     ],
                 ]

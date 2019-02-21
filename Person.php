@@ -1,4 +1,5 @@
 <?php
+
 namespace TinyPixel\ActionNetwork;
 
 use TinyPixel\ActionNetwork\ActionNetwork as ActionNetwork;
@@ -15,7 +16,10 @@ use TinyPixel\ActionNetwork\ActionNetwork as ActionNetwork;
  * @license    MIT
  * @link       https://github.com/pixelcollective/action-network-toolkit
  * @see        https://actionnetwork.org/docs
+ *
  **/
+
+// TODO: Finish refactoring class
 class Person extends ActionNetwork
 {
     public $family_name;
@@ -83,7 +87,7 @@ class Person extends ActionNetwork
         ) :
             trigger_error(
                 'person must include a valid email address',
-                E_USER_ERROR,
+                E_USER_ERROR
             );
         endif;
 

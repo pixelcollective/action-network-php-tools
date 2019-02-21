@@ -3,6 +3,10 @@
 namespace TinyPixel\ActionNetwork;
 
 use TinyPixel\ActionNetwork\ActionNetwork as ActionNetwork;
+use TinyPixel\ActionNetwork\Collection as Collection;
+use TinyPixel\ActionNetwork\Embed as Embed;
+
+use function TinyPixel\ActionNetwork\checkAPI as checkAPI;
 
 use \WP_Rest_Response;
 
@@ -20,13 +24,13 @@ use \WP_Rest_Response;
  * @link       https://github.com/pixelcollective/action-network-toolkit
  * @see        https://actionnetwork.org/docs
  **/
-class WordPressAPI
+class WordPressAPI extends ActionNetwork
 {
-    protected $service;
+    public $request;
+    public $responseObj;
 
-    public function __construct($api_key)
+    public function __construct()
     {
-        $this->service = new ActionNetwork($api_key);
         $this->registerRoutes();
     }
 
@@ -35,7 +39,7 @@ class WordPressAPI
         add_action('rest_api_init', function () {
             register_rest_route(
                 'action-network/v2',
-                '/resources/donation/',
+                '/resources/donationPages',
                 [
                     'methods' => 'GET',
                     'callback' => [$this, 'donationFormsEndpoint'],
@@ -43,7 +47,7 @@ class WordPressAPI
             );
             register_rest_route(
                 'action-network/v2',
-                '/resources/forms/',
+                '/resources/forms',
                 [
                     'methods' => 'GET',
                     'callback' => [$this, 'formsEndpoint'],
@@ -54,21 +58,17 @@ class WordPressAPI
 
     public function donationFormsEndpoint()
     {
-        $data = $this->service->getAllFundraisingPages();
-        $responseObj = [];
-        foreach ($data as $donationPage) :
-            $responseObj[] = $this->service->getEmbed('fundraising_pages', $donationPage['id']);
+        foreach ((new Collection())->getList('fundraising_pages') as $donationPage) :
+            $this->responseObj[] = (new Embed())->getEmbed('fundraising_pages', $donationPage['id']);
         endforeach;
-        return new WP_REST_Response($responseObj, 200);
+        return new WP_REST_Response($this->responseObj, 200);
     }
 
     public function formsEndpoint()
     {
-        $data = $this->service->getAllForms();
-        $responseObj = [];
-        foreach ($data as $form) :
-            $responseObj[] = $this->service->getEmbed('forms', $form['id']);
+        foreach ((new Collection())->getList('forms') as $form) :
+            $this->responseObj[] = (new Embed())->getEmbed('forms', $form['id']);
         endforeach;
-        return new WP_REST_Response($responseObj, 200);
+        return new WP_REST_Response($this->responseObj, 200);
     }
 }

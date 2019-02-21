@@ -1,0 +1,23 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.0.12] - 2019-02-21
+
+### Added
+
+- Semantic changelog
+- PHPCS.xml rules
+
+### Changed
+
+- TinyPixel\ActionNetwork is now statically instanced.
+
+### Fixed
+
+- TinyPixel\ActionNetwork\WordPressAPI creates TinyPixel\ActionNetwork\Form and TinyPixel\ActionNetwork\Embed objects
+- TinyPixel\ActionNetwork\Form and TinyPixel\ActionNetwork\Embed now properly source helper functions from helper.php
+- Error definitions are now sourced before they are utilized
