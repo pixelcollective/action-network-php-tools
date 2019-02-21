@@ -2,7 +2,7 @@
 
 namespace TinyPixel\ActionNetwork;
 
-use TinyPixel\ActionNetwork\ActionNetwork;
+use TinyPixel\ActionNetwork\ActionNetwork as ActionNetwork;
 
 /**
  * Embed

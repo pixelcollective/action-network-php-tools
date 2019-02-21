@@ -1,6 +1,8 @@
 <?php
 namespace TinyPixel\ActionNetwork;
 
+use TinyPixel\ActionNetwork\ActionNetwork as ActionNetwork;
+
 /**
  * ActionNetwork\Person
  *
@@ -14,7 +16,7 @@ namespace TinyPixel\ActionNetwork;
  * @link       https://github.com/pixelcollective/action-network-toolkit
  * @see        https://actionnetwork.org/docs
  **/
-class Person
+class Person extends ActionNetwork
 {
     public $family_name;
     public $given_name;

@@ -2,7 +2,7 @@
 
 namespace TinyPixel\ActionNetwork;
 
-use TinyPixel\ActionNetwork as ActionNetwork;
+use TinyPixel\ActionNetwork\ActionNetwork as ActionNetwork;
 
 use \WP_Rest_Response;
 
