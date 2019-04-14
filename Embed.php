@@ -19,13 +19,36 @@ use TinyPixel\ActionNetwork\ActionNetwork as ActionNetwork;
  **/
 class Embed extends ActionNetwork
 {
+    /**
+     * Embed Identifier
+     *
+     * @var string
+     */
     public $id;
+
+    /**
+     * Embed Title
+     *
+     * @var string
+     */
     public $title;
+
+    /**
+     * Embed
+     *
+     * @var string
+     */
     public $embed;
+
+    /**
+     * Resource type
+     *
+     * @var string
+     */
     public $resource;
 
     /**
-     * getEmbed
+     * Get Embed Code
      *
      * get embeds for a petition, event, fundraising page, advocacy campaign or form
      *
@@ -38,24 +61,18 @@ class Embed extends ActionNetwork
      **/
     public function getEmbed($type, $id, $size = 'standard', $style = 'default')
     {
-        (!in_array(
-            $type,
-            array(
+        (!in_array($type, [
                 'petitions',
                 'events',
                 'fundraising_pages',
                 'advocacy_campaigns',
                 'forms'
-            )
-        )) ? trigger_error($this->errors->embed->invalid_type, E_USER_ERROR) : null;
+        ])) ? trigger_error($this->errors->embed->invalid_type, E_USER_ERROR) : null;
 
-        (!in_array(
-            $size,
-            array(
-                'standard',
-                'full'
-            )
-        )) ? trigger_error($this->errors->embed->invalid_size, E_USER_ERROR) : null;
+        (!in_array($size, [
+            'standard',
+            'full'
+        ])) ? trigger_error($this->errors->embed->invalid_size, E_USER_ERROR) : null;
 
         (!in_array($style, ['default', 'layout_only', 'no']))
             ? trigger_error($this->errors->embed->invalid_layout, E_USER_ERROR)

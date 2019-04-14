@@ -20,7 +20,7 @@ use TinyPixel\ActionNetwork\ActionNetwork as ActionNetwork;
 class Form extends ActionNetwork
 {
     /**
-     * recordSubmission
+     * Record Form submission
      *
      * @param mixed $person
      * @param mixed $form_id
@@ -30,10 +30,6 @@ class Form extends ActionNetwork
      **/
     public function recordSubmission($activist, $form_id, $tags = null)
     {
-        return $this->call(
-            'forms/'.$form_id.'/submissions',
-            'POST',
-            $this->processActivist($activist)
-        );
+        return $this->call("forms/{$form_id}/submissions", "POST", $this->processActivist($activist));
     }
 }

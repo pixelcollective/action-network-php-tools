@@ -3,24 +3,6 @@
 namespace TinyPixel\ActionNetwork;
 
 /**
- * function TinyPixel\ActionNetwork\checkAPI
- *
- * @param [type] $api_key
- * @return void
- */
-function checkAPI($api_key)
-{
-    if ($api_key) :
-        return $api_key;
-    else :
-        trigger_error(
-            $this->errors->api->no_api_key,
-            E_USER_ERROR
-        );
-    endif;
-}
-
-/**
  * function TinyPixel\ActionNetwork\getErrorDefinitions
  *
  * @return object error_defintions
@@ -84,8 +66,8 @@ function getResourceTitle($resource)
     endif;
 
     if (isset($resource->email_addresses)
-            && is_array($resource->email_addresses)
-                && count($resource->email_addresses)) :
-                    return $resource->email_addresses[0]->address;
-    endif;
+        && is_array($resource->email_addresses)
+            && count($resource->email_addresses)) {
+                return $resource->email_addresses[0]->address;
+    }
 }

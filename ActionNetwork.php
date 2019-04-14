@@ -2,12 +2,8 @@
 
 namespace TinyPixel\ActionNetwork;
 
-use function TinyPixel\ActionNetwork\getErrorDefinitions as getErrorDefinitions;
-use function TinyPixel\ActionNetwork\getResourceId as getResourceId;
-use function TinyPixel\ActionNetwork\getResourceTitle as getResourceTitle;
-
-use \GuzzleHttp\Guzzle;
-use \GuzzleHttp\Stream\Stream;
+use \GuzzleHttp\Client;
+use \TinyPixel\ActionNetwork\WordPressAPI;
 
 /**
  * Action Network
@@ -25,18 +21,58 @@ use \GuzzleHttp\Stream\Stream;
  **/
 class ActionNetwork
 {
+    /**
+     * Instance
+     *
+     * @var object
+     */
     private static $instance;
+
+    /**
+     * API Key
+     *
+     * @var string
+     */
     protected static $api_key;
+
+    /**
+     * Guzzle Client
+     *
+     * @var object
+     */
     protected $guzzle;
 
+    /**
+     * API Version
+     *
+     * @var string
+     */
     protected $api_version  = '2';
+
+    /**
+     * Action Network API Base URL
+     *
+     * @var string
+     */
     protected $api_base_url = 'https://actionnetwork.org/api/v2/';
+
+    /**
+     * Error references
+     *
+     * @var array
+     */
     protected $errors;
 
+    /**
+     * __construct
+     *
+     * @param mixed $api_key
+     * @return void
+     */
     public function __construct($api_key = null)
     {
-        $this->errors = getErrorDefinitions();
-        $this->guzzle = new \GuzzleHttp\Client();
+        $this->guzzle = new Client();
+        $this->wordpress_api = new WordPressAPI();
     }
 
     /**
@@ -45,13 +81,13 @@ class ActionNetwork
      * Share singular Action Network
      * connection to all subpackages
      *
-     * @param [type] $api_key
+     * @param string $api_key
      * @return void
      */
     public static function getInstance($api_key = null)
     {
         if (!isset(self::$instance)) :
-            self::$api_key = checkAPI($api_key);
+            self::$api_key =  $api_key ?? '';
             self::$instance = new ActionNetwork($api_key);
         endif;
 
@@ -59,7 +95,6 @@ class ActionNetwork
     }
 
     /**
-     * Call API
      *
      * Generic API Call
      *
@@ -67,7 +102,7 @@ class ActionNetwork
      * @param string method
      * @param string req
      *
-     * @return json    $response JSON Response from AN
+     * @return object $response JSON response from Action Network
      */
     public function call($endpoint, $method = 'GET', $req = null)
     {
@@ -79,35 +114,83 @@ class ActionNetwork
          */
         $endpoint = str_replace($this->api_base_url, '', $endpoint);
 
+        /**
+         * For calls without a $req parameter we'll use this
+         */
+        $request_url = $this->api_base_url.$endpoint;
+
         if ($req) :
-            $response = $this->guzzle->request(
-                'POST',
-                $endpoint,
-                [
-                    'headers' => [
-                        'User-Agent'     => 'testing/1.0',
-                        'Accept'         => 'application/json',
-                        'OSDI-API-Token' => $this::$api_key,
-                        'Content-Length' => strlen(json_encode($req)),
-                        'JSON'           => json_encode($req),
-                    ],
-                ]
-            );
+            $response = $this->guzzle->request('POST', $endpoint, [
+                'headers' => [
+                    'User-Agent'     => 'testing/1.0',
+                    'Accept'         => 'application/json',
+                    'OSDI-API-Token' => $this::$api_key,
+                    'Content-Length' => strlen(json_encode($req)),
+                    'JSON'           => json_encode($req),
+                ],
+            ]);
         else :
-            $response = $this->guzzle->request(
-                'GET',
-                $this->api_base_url.$endpoint,
-                [
-                    'headers' => [
-                        'User-Agent'     => 'testing/1.0',
-                        'Accept'         => 'application/json',
-                        'OSDI-API-Token' => $this::$api_key,
-                        'JSON'           => $req,
-                    ],
-                ]
-            );
+            $response = $this->guzzle->request('GET', $request_url, [
+                'headers' => [
+                    'User-Agent'     => 'testing/1.0',
+                    'Accept'         => 'application/json',
+                    'OSDI-API-Token' => $this::$api_key,
+                    'JSON'           => $req,
+                ],
+            ]);
         endif;
 
         return json_decode($response->getBody()->getContents());
+    }
+
+    /**
+     * Parse OSDI resource identifier from given resource
+     *
+     * @param  array $resource
+     * @return void
+     */
+    public static function getResourceId($resource)
+    {
+        if (isset($resource->identifiers) ||
+            is_array($resource->identifiers)) :
+            foreach ($resource->identifiers as $identifier) {
+                if (substr($identifier, 0, 15) == 'action_network:') {
+                    return substr($identifier, 15);
+                }
+            }
+        endif;
+    }
+
+    /**
+     * Parse usable title from given resource
+     *
+     * @param mixed $resource
+     *
+     * @return void
+     */
+    public static function getResourceTitle($resource)
+    {
+        /**
+         * 2 e z.
+         */
+        if (isset($resource->title)) {
+            return $resource->title;
+        }
+
+        /**
+         * "A cat is fine too."
+         */
+        if (isset($resource->name)) {
+            return $resource->name;
+        }
+
+        /**
+         * Fine. Let's do it.
+         */
+        if (isset($resource->email_addresses)
+            && is_array($resource->email_addresses)
+                && count($resource->email_addresses)) {
+                    return $resource->email_addresses[0]->address;
+        }
     }
 }

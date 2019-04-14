@@ -24,7 +24,7 @@ class Petition extends ActionNetwork
     public $embed;
 
     /**
-     * recordSignature
+     * Record petition signature
      *
      * @param mixed $activist
      * @param mixed $petition_id
@@ -36,9 +36,9 @@ class Petition extends ActionNetwork
     public function recordSignature($activist, $petition_id, $comment = null, $tags = null)
     {
         return $this->call(
-            'petitions/'.$petition_id.'/signatures',
-            'POST',
-            $this->processActivist($activist)
+            "petitions/{$petition_id}/signatures",
+            "POST",
+            $this->processActivist($activist),
         );
     }
 }

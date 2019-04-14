@@ -2,10 +2,7 @@
 
 namespace TinyPixel\ActionNetwork;
 
-use TinyPixel\ActionNetwork\ActionNetwork as ActionNetwork;
-
-use function TinyPixel\ActionNetwork\getResourceId as getResourceId;
-use function TinyPixel\ActionNetwork\getResourceTitle as getResourceTitle;
+use \TinyPixel\ActionNetwork\ActionNetwork as ActionNetwork;
 
 /**
  * Collection
@@ -162,8 +159,8 @@ class Collection extends ActionNetwork
         if (isset($response->_embedded->$osdi)) :
             $collection_full = $response->_embedded->$osdi;
             foreach ($collection_full as $item) :
-                $item_id = getResourceId($item);
-                $item_title = getResourceTitle($item);
+                $item_id = ActionNetwork::getResourceId($item);
+                $item_title = ActionNetwork::getResourceTitle($item);
                 $collection[] = [
                     'id' => $item_id,
                     'title' => $item_title
