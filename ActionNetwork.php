@@ -188,9 +188,23 @@ class ActionNetwork
          * Fine. Let's do it.
          */
         if (isset($resource->email_addresses)
-            && is_array($resource->email_addresses)
+                && is_array($resource->email_addresses)
                 && count($resource->email_addresses)) {
                     return $resource->email_addresses[0]->address;
+        }
+    }
+
+    public static function error($error)
+    {
+        trigger_error($error, E_USER_ERROR);
+    }
+
+    public static function setHandler()
+    {
+        if (_DEBUG_) {
+            set_error_handler('debug_error_handler');
+        } else {
+            set_error_handler('nice_error_handler');
         }
     }
 }

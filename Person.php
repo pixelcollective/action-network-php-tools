@@ -22,12 +22,46 @@ use TinyPixel\ActionNetwork\ActionNetwork as ActionNetwork;
 // TODO: Finish refactoring class
 class Person extends ActionNetwork
 {
+    /**
+     * Last name
+     *
+     * @var string
+     */
     public $family_name;
+
+    /**
+     * First name
+     *
+     * @var string
+     */
     public $given_name;
-    public $postal_addresses = array();
-    public $email_addresses = array();
+
+    /**
+     * Postal codes
+     *
+     * @var array
+     */
+    public $postal_addresses = [];
+
+    /**
+     * Email addresses
+     *
+     * @var array
+     */
+    public $email_addresses = [];
+
+    /**
+     * Custom fields
+     *
+     * @var array
+     */
     public $custom_fields;
 
+    /**
+     * Valid Subscription Statuses
+     *
+     * @var array
+     */
     private $valid_subscription_statuses = [
         'subscribed',
         'unsubscribed',
@@ -35,6 +69,11 @@ class Person extends ActionNetwork
         'spam complaint'
     ];
 
+    /**
+     * Valid address fields
+     *
+     * @var array
+     */
     private $valid_address_fields = [
         'primary',
         'address_lines',
@@ -53,197 +92,46 @@ class Person extends ActionNetwork
      */
     public function __construct($person = null)
     {
-        $person = (is_array($person)) ? (object) $person : void;
+        if (!null($person)) {
+            $this->setup($person);
+        }
 
-        if (!is_object($person)) :
-            trigger_error(
-                'person must be passed as an associative array or object',
-                E_USER_ERROR
-            );
-        endif;
+        return $this;
+    }
 
-        if (isset($person->email)
-            && filter_var($person->email, FILTER_VALIDATE_EMAIL)
-        ) :
-                $person->email_addresses[0] =
-                    (object) array('address' => $person->email);
-        endif;
+    /**
+     * Setup
+     *
+     * @param mixed $person
+     *
+     */
+    public function setup($person = null)
+    {
+        $person = $this->formatAsObject($person);
 
-        if (isset($person->email_addresses)
-            && is_array($person->email_addresses)
-        ) :
-            foreach ($person->email_addresses as $index => $email_address) :
-                if (is_array($email_address)) :
-                    $person->email_addresses[$index] = (object) $email_address;
-                endif;
-            endforeach;
-        endif;
-
-        if (!isset($person->email_addresses[0]->address)
-            || !filter_var(
-                $person->email_addresses[0]->address,
-                FILTER_VALIDATE_EMAIL
-            )
-        ) :
-            trigger_error(
-                'person must include a valid email address',
-                E_USER_ERROR
-            );
-        endif;
-
-        $this->setStatus($this->email_addresses[0]->status);
-        $this->setEmailAddress($person->email_address);
+        $this->setupEmail($person);
+        $this->validate();
         $this->setFamilyName($person->family_name);
         $this->setGivenName($person->given_name);
-
-
-        foreach ($this->valid_address_fields as $field) :
-            if ($field == 'primary') :
-                continue;
-            endif;
-
-            if (isset($person->$field)) :
-                if (!isset($person->address)
-                    || !is_object($person->address)
-                ) :
-                        $person->address = new stdClass();
-                endif;
-
-                if ($field == 'address_lines') :
-                    $person->address->address_lines = array($person->address_lines);
-                else :
-                    $person->address->$field = $person->$field;
-                endif;
-            endif;
-        endforeach;
-
-        if (isset($person->address)) :
-            $address = $person->address;
-
-            if (is_array($address)) :
-                $address = (object) $address;
-            endif;
-
-            if (!is_object($address)) :
-                trigger_error(
-                    'address must be passed as an associative array or object',
-                    E_USER_ERROR
-                );
-            endif;
-
-            if (!isset($address->primary)) :
-                $address->primary = true;
-            endif;
-
-            $valid_address = new stdClass();
-
-            foreach ($this->valid_address_fields as $field) :
-                if (isset($address->$field)
-                    && (($field=='address_lines') ? is_array($address->$field) : true )
-                ) :
-                        $valid_address->$field = $address->$field;
-                endif;
-            endforeach;
-
-            $person->postal_addresses[] = $valid_address;
-        endif;
-
-        if (isset($person->postal_addresses)
-            && is_array($person->postal_addresses)
-        ) :
-            foreach ($person->postal_addresses as $index => $postal_address) :
-                if (is_array($postal_address)) :
-                    $person->postal_addresses[$index] = (object) $postal_address;
-                endif;
-            endforeach;
-
-            $this->setPostalAddress($person->postal_addresses);
-        endif;
-
-        $person_as_array = (array) $person;
-        foreach ($person_as_array as $key => $value) :
-            if (is_string($value)
-                && !in_array($key, $this->valid_address_fields)
-                && !in_array(
-                    $key,
-                    array(
-                        'email',
-                        'status',
-                        'family_name',
-                        'given_name'
-                    )
-                )
-            ) :
-                if (!isset($person->custom_fields)
-                    || !is_object($person->custom_fields)
-                ) :
-                        $person->custom_fields = new stdClass();
-                endif;
-
-                $person->custom_fields->$key = $value;
-            endif;
-        endforeach;
-
-        $this->custom_fields = new stdClass();
-        if (isset($person->custom_fields)) {
-            $custom_fields = $person->custom_fields;
-            if (is_array($custom_fields)) {
-                $custom_fields = (object) $custom_fields;
-            }
-            if (is_object($custom_fields)) {
-                $this->custom_fields = $custom_fields;
-            }
-        }
     }
 
     /**
-     * processActivist
-     *
-     * @param mixed $activist
-     * @param mixed $tags
-     *
-     * @return void
-     **/
-    public function processActivist($activist, $tags = null, $comment = null)
-    {
-        $activist   = $this->normalizeActivist($activist);
-        (!$tags)    ? : $this->tagActivist($activist, $tags);
-        (!$comment) ? : $this->addComment($activist, $comment);
-
-        return $activist;
-    }
-
-    /**
-     * normalizeActivist
-     *
-     * @param mixed $activist
-     *
-     * @return void
-     */
-    public function normalizeActivist($activist)
-    {
-        $activist = is_a($activist, 'Person')
-            ? $activist
-            : new Person($activist);
-
-        return (object) array('person' => $activist);
-    }
-
-    /**
-     * tagActivist
+     * Set Tag
      *
      * @param mixed $activist
      * @param mixed $tags
      *
      * @return void
      */
-    public function tagActivist($activist, $tags = null)
+    public function addTag($activist, $tags = null)
     {
-        $activist->add_tags = (!is_array($tags)) ? : $tags;
+        $activist->tags[] = is_array($tags) ? $tags : null;
+
+        return $this;
     }
 
     /**
-     * addComment
+     * Set Comment
      *
      * @param mixed $activist
      * @param mixed $comment
@@ -252,23 +140,13 @@ class Person extends ActionNetwork
      */
     public function addComment($activist, $comment = null)
     {
-        $activist->comments = (!isset($comment)) ? : $comment;
+        $activist->comments = isset($comment) ? $comment : null;
+
+        return $this;
     }
 
     /**
-     * setEmail
-     *
-     * @param mixed $email
-     *
-     * @return void
-     */
-    public function setEmail($email = null)
-    {
-        $this->email = (!isset($email)) ? : $email;
-    }
-
-    /**
-     * setStatus
+     * Set Status
      *
      * @param mixed $status
      *
@@ -276,32 +154,42 @@ class Person extends ActionNetwork
      */
     public function setStatus($status)
     {
-        $this->email_addresses[0]
-            ->status = (!in_array($status, $this->valid_subscription_statuses)) ? : $status;
+        $this->email_addresses[0]->status = in_array(
+            $status,
+            $this->valid_subscription_statuses
+        ) ? $status : false;
+
+        return $this;
     }
 
     /**
-     * setFamilyName
+     * set Last Name
      *
      * @param mixed $family_name
      *
      * @return void
      */
-    public function setFamilyName($family_name = null)
+    public function setLastName($last_name = null)
     {
-        $this->family_name = (!isset($family_name)) ? : $family_name;
+        $this->family_name = isset($last_name) ? $last_name :
+            ActionNetwork::error('problem with family name');
+
+        return $this;
     }
 
     /**
-     * setGivenName
+     * set First Name
      *
      * @param mixed $given_name
      *
      * @return void
      */
-    public function setGivenName($given_name = null)
+    public function setFirstName($first_name = null)
     {
-        $this->given_name = (!isset($given_name)) ? : $given_name;
+        $this->given_name = isset($first_name) ? $first_name :
+            ActionNetwork::error('problem with first name');
+
+        return $this;
     }
 
     /**
@@ -311,45 +199,153 @@ class Person extends ActionNetwork
      *
      * @return void
      */
-    public function setPostalAddress($address = null)
+    public function setAddress($address = null)
     {
-        $address = (!is_array($address)) ? : (object) $address;
-        if (!is_object($address)) :
-            trigger_error(
-                'address must be passed as an associative array or object',
-                E_USER_ERROR
-            );
-        endif;
+        $address = $this->formatAsObject($address);
 
         $valid_address = new stdClass();
 
-        foreach ($this->valid_address_fields as $field) :
-            if (isset($address->$field)
-                && (($field=='address_lines') ? is_array($address->$field) : true )
-            ) :
-                    $valid_address->$field = $address->$field;
-            endif;
-        endforeach;
+        foreach ($this->valid_address_fields as $field) {
+            $valid_address->$field = $this->validateAddressField(
+                $address,
+                $field
+            ) ? $address->$field : null;
+        }
 
         $this->postal_addresses[] = $valid_address;
+
+        return $this;
     }
 
     /**
-     * setCustomField
+     * setCustom
      *
      * @param mixed $key_or_array
      * @param mixed $value
      *
      * @return void
      */
-    public function setCustomField($key_or_array, $value = null)
+    public function setCustom($key_or_array, $value = null)
     {
-        if (is_array($key_or_array)) :
-            foreach ($key_or_array as $k => $v) :
+        if (is_array($key_or_array)) {
+            foreach ($key_or_array as $k => $v) {
                 $this->custom_fields->$k = $v;
-            endforeach;
-        elseif (is_string($key_or_array) && $value) :
+            }
+        } elseif (is_string($key_or_array) && $value) {
             $this->custom_fields->$key_or_array = $value;
-        endif;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Validate address field with typecheck
+     * on 'address_lines'
+     *
+     * @param mixed $address
+     * @param mixed $field
+     *
+     * @return void
+     */
+    private function validateAddressField($address, $field)
+    {
+        if (isset($address->$field)) {
+            return $field=='address_lines' ? is_array($address->$field) : true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Validate
+     *
+     * @param object $person
+     * @return void
+     */
+    public function validate()
+    {
+        $no_email = !isset($this->person->email_addresses[0]->address);
+        $invalid_email = self::checkEmail($this->person->email_addresses[0]->address);
+
+        if ($no_email || $invalid_email) {
+            ActionNetwork::error('invalid email or no email supplied');
+        }
+
+        return $this;
+    }
+
+    /**
+     * setup Email
+     *
+     * @param mixed $person
+     * @return void
+     */
+    private function setupEmail($person)
+    {
+        if (isset($person->email_addresses) && is_array($person->email_addresses)) {
+            $this->setEmails($person->email_addresses);
+        }
+
+        ActionNetwork::error('invalid data passed to setupEmail method');
+    }
+
+    /**
+     * set Emails
+     *
+     * @param mixed $emails
+     * @return void
+     */
+    public function setEmails($emails)
+    {
+        if (isset($emails) && is_array($emails)) {
+            foreach ($emails as $index => $email) {
+                $this->setEmail($email, $index);
+            }
+        } else {
+            ActionNetwork::error('invalid data passed to setEmails method');
+        }
+
+        return $this;
+    }
+
+    /**
+     * set Email
+     *
+     * @param [type] $email
+     * @param integer $index
+     * @return void
+     */
+    public function setEmail($email, $index = 0)
+    {
+        $this->email_addresses[$index] = isset($email) && self::checkEmail($email) ??
+            ActionNetwork::error('invalid email passed to setEmail method');
+
+        return $this;
+    }
+
+    /**
+     * format as Object
+     *
+     * @param [type] $person
+     * @return void
+     */
+    private function formatAsObject($person)
+    {
+        $person = (is_array($person)) ? (object) $person : null;
+
+        return is_object($person) ? $person : ActionNetwork::error(
+            'person must be passed as an associative array or object'
+        );
+    }
+
+    /**
+     * check Email
+     *
+     * @param string $email
+     * @return void
+     */
+    public static function checkEmail($email)
+    {
+        return filter_var($email, FILTER_VALIDATE_EMAIL) ? true : false;
     }
 }
