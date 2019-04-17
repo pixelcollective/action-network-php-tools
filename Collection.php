@@ -19,10 +19,15 @@ use \TinyPixel\ActionNetwork\ActionNetwork as ActionNetwork;
  **/
 class Collection extends ActionNetwork
 {
+    /**
+     * A collection of OSDI objects
+     *
+     * @var object
+     */
     public $collection;
 
     /**
-     * getList
+     * Get a list of object IDs and names
      *
      * @param string resourceType
      *
@@ -35,7 +40,7 @@ class Collection extends ActionNetwork
     }
 
     /**
-     * getEmbedCodes
+     * Get Embed Codes
      *
      * @param mixed $resource
      * @param mixed $array
@@ -56,7 +61,7 @@ class Collection extends ActionNetwork
     }
 
     /**
-     * getCollection
+     * Get Collection
      *
      * @param mixed $endpoint
      * @param mixed $page
@@ -66,13 +71,15 @@ class Collection extends ActionNetwork
      */
     public function getCollection($endpoint, $page = 1, $per_page = null)
     {
-        if ($page > 1) :
-            $endpoint = '?page='.$page;
-        endif;
-        if ($per_page) :
-            $endpoint .= ($page > 1) ? '&' : '?' . 'per_page=' . $per_page;
-        endif;
-        return $this->call($endpoint);
+        $query = sprintf(
+            "%s?%s%s%s",
+            $endpoint,
+            $page > 1 ? "page={$page}" : '',
+            $page > 1 ? '&' : '',
+            $per_page ? "per_page={$per_page}" : '',
+        );
+
+        return $this->call($query);
     }
 
     /**
@@ -91,46 +98,53 @@ class Collection extends ActionNetwork
     }
 
     /**
-     * getFullSimpleCollection
+     * Get full simple collection
      *
      * @param mixed $endpoint
-     *
      * @return void
+     *
      */
     public function getFullSimpleCollection($endpoint)
     {
         $response = $this->call($endpoint);
+
         if (isset($response->total_pages)) :
-            if ($response->total_pages > 1) :
+            if ($response->total_pages > 1) {
                 $full_simple_collection = $this->simplifyCollection($response, $endpoint);
-                for ($page=2; $page<=$response->total_pages; $page++) :
+
+                for ($page=2; $page<=$response->total_pages; $page++) {
                     $response = $this->getCollection($endpoint, $page);
                     $full_simple_collection = array_merge(
                         $full_simple_collection,
                         $this->simplifyCollection($response, $endpoint)
                     );
-                endfor;
+                }
+
                 return $full_simple_collection;
-            else :
+            } else {
                 return $this->simplifyCollection($response, $endpoint);
-            endif;
+            }
         else :
             $full_simple_collection = $this->simplifyCollection($response, $endpoint);
             $next_page = $this->getNextPage($response);
-            while ($next_page) :
+
+            while ($next_page) {
                 $response = $this->getCollection($next_page);
+
                 $full_simple_collection = array_merge(
                     $full_simple_collection,
                     $this->simplifyCollection($response, $endpoint)
                 );
+
                 $next_page = $this->getNextPage($response);
-            endwhile;
+            }
+
             return $full_simple_collection;
         endif;
     }
 
     /**
-     * getNextPage
+     * Get next page endpoint
      *
      * @param  mixed $response
      * @return void
@@ -144,7 +158,7 @@ class Collection extends ActionNetwork
     }
 
     /**
-     * simplifyCollection
+     * Simplify collection response
      *
      * @param mixed $response
      * @param mixed $endpoint
@@ -152,21 +166,21 @@ class Collection extends ActionNetwork
      *
      * @return array $collection
      */
-    public function simplifyCollection($response, $endpoint, $collection = array())
+    public function simplifyCollection($response, $endpoint, $collection = [])
     {
-        $osdi = 'osdi:'.$endpoint;
-        $collection = [];
-        if (isset($response->_embedded->$osdi)) :
+        $osdi = "osdi:{$endpoint}";
+
+        if (isset($response->_embedded->$osdi)) {
             $collection_full = $response->_embedded->$osdi;
-            foreach ($collection_full as $item) :
-                $item_id = ActionNetwork::getResourceId($item);
-                $item_title = ActionNetwork::getResourceTitle($item);
+
+            foreach ($collection_full as $item) {
                 $collection[] = [
-                    'id' => $item_id,
-                    'title' => $item_title
+                    'id' => ActionNetwork::getResourceId($item),
+                    'title' => ActionNetwork::getResourceTitle($item)
                 ];
-            endforeach;
-        endif;
+            }
+        }
+
         return $collection;
     }
 }

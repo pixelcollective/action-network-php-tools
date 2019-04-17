@@ -19,26 +19,43 @@ use TinyPixel\ActionNetwork\ActionNetwork as ActionNetwork;
  **/
 class Petition extends ActionNetwork
 {
+    /**
+     * ID
+     *
+     * @var undefined
+     */
     public $id;
+
+    /**
+     * Title
+     *
+     * @var undefined
+     */
     public $title;
+
+    /**
+     * Embed
+     *
+     * @var string
+     */
     public $embed;
 
     /**
      * Record petition signature
      *
-     * @param mixed $activist
+     * @param mixed $person
      * @param mixed $petition_id
      * @param mixed $comment
      * @param mixed $tags
      *
      * @return void
      **/
-    public function recordSignature($activist, $petition_id, $comment = null, $tags = null)
+    public function addPerson($person, $petition_id)
     {
         return $this->call(
             "petitions/{$petition_id}/signatures",
             "POST",
-            $this->processActivist($activist),
+            $this->processActivist($person),
         );
     }
 }

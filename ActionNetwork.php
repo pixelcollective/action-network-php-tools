@@ -91,7 +91,7 @@ class ActionNetwork
             self::$instance = new ActionNetwork($api_key);
         endif;
 
-        return self::$instance;
+        return self::$api_key ? self::error('api key not set') : self::$instance;
     }
 
     /**
@@ -104,7 +104,7 @@ class ActionNetwork
      *
      * @return object $response JSON response from Action Network
      */
-    public function call($endpoint, $method = 'GET', $req = null)
+    public function call($endpoint, $req = null)
     {
         /**
          * Remove base URL from endpoint string, if there is a match.
@@ -119,7 +119,7 @@ class ActionNetwork
          */
         $request_url = $this->api_base_url.$endpoint;
 
-        if ($req) :
+        if ($req) {
             $response = $this->guzzle->request('POST', $endpoint, [
                 'headers' => [
                     'User-Agent'     => 'testing/1.0',
@@ -129,7 +129,7 @@ class ActionNetwork
                     'JSON'           => json_encode($req),
                 ],
             ]);
-        else :
+        } else {
             $response = $this->guzzle->request('GET', $request_url, [
                 'headers' => [
                     'User-Agent'     => 'testing/1.0',
@@ -138,7 +138,7 @@ class ActionNetwork
                     'JSON'           => $req,
                 ],
             ]);
-        endif;
+        }
 
         return json_decode($response->getBody()->getContents());
     }
@@ -147,6 +147,7 @@ class ActionNetwork
      * Parse OSDI resource identifier from given resource
      *
      * @param  array $resource
+     *
      * @return void
      */
     public static function getResourceId($resource)
@@ -170,23 +171,14 @@ class ActionNetwork
      */
     public static function getResourceTitle($resource)
     {
-        /**
-         * 2 e z.
-         */
         if (isset($resource->title)) {
             return $resource->title;
         }
 
-        /**
-         * "A cat is fine too."
-         */
         if (isset($resource->name)) {
             return $resource->name;
         }
 
-        /**
-         * Fine. Let's do it.
-         */
         if (isset($resource->email_addresses)
                 && is_array($resource->email_addresses)
                 && count($resource->email_addresses)) {
@@ -196,6 +188,7 @@ class ActionNetwork
 
     public static function error($error)
     {
+        $this->setHandler();
         trigger_error($error, E_USER_ERROR);
     }
 
