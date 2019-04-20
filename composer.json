@@ -1,26 +1,23 @@
 {
-  "name": "tiny-pixel/action-network",
-  "description": "PHP tools for Action Network's OSDI API",
-  "homepage": "https://github.com/pixelcollective/action-network-php-tools",
-  "license": "MIT",
-  "authors": [
-      {
-          "name": "Kelly Mears",
-          "email": "developers@tinypixel.io"
-      }
-  ],
-  "autoload": {
-      "psr-4": {
-          "TinyPixel\\ActionNetwork\\": "/",
-          "GuzzleHttp\\Guzzle\\": "/"
-      },
-      "files": [
-          "helper.php"
-      ]
-  },
-  "require": {
-      "php": "^7.2",
-      "composer/installers": "^1.6",
-      "guzzlehttp/guzzle": "^6.3.3"
-  }
+    "name": "tiny-pixel/action-network",
+    "description": "PHP tools for Action Network's OSDI API",
+    "homepage": "https://github.com/pixelcollective/action-network-php-tools",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kelly Mears",
+            "email": "developers@tinypixel.io"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "TinyPixel\\ActionNetwork\\": "/",
+            "GuzzleHttp\\Guzzle\\": "/"
+        }
+    },
+    "require": {
+        "php": "^7.2",
+        "composer/installers": "^1.6",
+        "guzzlehttp/guzzle": "^6.3.3"
+    }
 }
