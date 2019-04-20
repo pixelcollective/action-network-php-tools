@@ -33,7 +33,7 @@ class ActionNetwork
      *
      * @var string
      */
-    protected $api_key;
+    private static $api_key;
 
     /**
      * Guzzle Client
