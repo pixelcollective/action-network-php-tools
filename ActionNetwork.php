@@ -188,11 +188,6 @@ class ActionNetwork
 
     public static function error($error)
     {
-        if (_DEBUG_) {
-            set_error_handler('debug_error_handler');
-        } else {
-            set_error_handler('nice_error_handler');
-        }
         trigger_error($error, E_USER_ERROR);
     }
 }
