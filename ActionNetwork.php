@@ -71,6 +71,7 @@ class ActionNetwork
      */
     public function __construct($api_key = null)
     {
+        $this->api_key = $api_key;
         $this->guzzle = new Client();
         $this->wordpress_api = new WordPressAPI();
     }
@@ -84,14 +85,13 @@ class ActionNetwork
      * @param string $api_key
      * @return void
      */
-    public static function getInstance($api_key = null)
+    public static function getInstance($api_key)
     {
         if (!isset(self::$instance)) :
-            self::$api_key =  $api_key ?? '';
             self::$instance = new ActionNetwork($api_key);
         endif;
 
-        return self::$api_key ? self::error('api key not set') : self::$instance;
+        return self::$instance;
     }
 
     /**
