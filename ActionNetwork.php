@@ -124,7 +124,7 @@ class ActionNetwork
                 'headers' => [
                     'User-Agent'     => 'testing/1.0',
                     'Accept'         => 'application/json',
-                    'OSDI-API-Token' => $this::$api_key,
+                    'OSDI-API-Token' => $this->$api_key,
                     'Content-Length' => strlen(json_encode($req)),
                     'JSON'           => json_encode($req),
                 ],
@@ -134,7 +134,7 @@ class ActionNetwork
                 'headers' => [
                     'User-Agent'     => 'testing/1.0',
                     'Accept'         => 'application/json',
-                    'OSDI-API-Token' => $this::$api_key,
+                    'OSDI-API-Token' => $this->$api_key,
                     'JSON'           => $req,
                 ],
             ]);
