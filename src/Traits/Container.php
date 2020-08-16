@@ -94,4 +94,34 @@ trait Container
     {
         unset($this->values[$id]);
     }
+
+    /**
+     * Returns all defined value names.
+     *
+     * @return array An array of value names
+     */
+    public function keys(): array
+    {
+        return array_keys($this->values);
+    }
+
+    /**
+     * Returns all defined value names.
+     *
+     * @return array An array of value names
+     */
+    public function values(): array
+    {
+        return array_values($this->values);
+    }
+
+    /**
+     * Returns all defined value names.
+     *
+     * @return array An array of value names
+     */
+    public function all(): array
+    {
+        return $this->values;
+    }
 }

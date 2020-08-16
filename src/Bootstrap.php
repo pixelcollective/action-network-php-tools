@@ -2,12 +2,19 @@
 
 namespace TinyPixel\ActionNetwork;
 
+use Dotenv\Dotenv;
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
+use TinyPixel\ActionNetwork\OSDI\ActionNetwork;
+use TinyPixel\ActionNetwork\OSDI\People;
+use TinyPixel\ActionNetwork\OSDI\Tags;
+use TinyPixel\ActionNetwork\OSDI\Submissions;
 use TinyPixel\ActionNetwork\Container\Container;
-use TinyPixel\ActionNetwork\OSDI\Person;
-use TinyPixel\ActionNetwork\OSDI\Petition;
-use DotEnv\DotEnv;
+use TinyPixel\ActionNetwork\Resource\Form;
+use TinyPixel\ActionNetwork\Resource\Person;
+use TinyPixel\ActionNetwork\Resource\Petition;
+use TinyPixel\ActionNetwork\Resource\Submission;
+use TinyPixel\ActionNetwork\Resource\Tag;
 
 /**
  * Action Network Bootstrap
@@ -37,9 +44,15 @@ class Bootstrap
 
     /** @var array services */
     protected $services = [
+        'form' => Form::class,
         'osdi' => ActionNetwork::class,
         'person' => Person::class,
+        'people' => People::class,
         'petition' => Petition::class,
+        'submission' => Submission::class,
+        'submissions' => Submissions::class,
+        'tag' => Tag::class,
+        'tags' => Tags::class,
     ];
 
     /**
@@ -51,7 +64,7 @@ class Bootstrap
     {
         $this->dir = $dir;
 
-        $dotenv = \Dotenv\Dotenv::createImmutable($this->dir);
+        $dotenv = Dotenv::createImmutable($this->dir);
         $dotenv->load();
 
         $this->config = (object) [
@@ -88,11 +101,13 @@ class Bootstrap
          * Do services.
          */
         Collection::make($this->services)->each(function ($service, $name) {
-            $instance = new $service($this->app);
-            $instance->register($this->app);
-            $instance->boot($this->app);
+            $this->app->set($name, function () use ($service) {
+                $instance = new $service($this->app);
+                $instance->register($this->app);
+                $instance->boot($this->app);
 
-            $this->app->set($name, $instance);
+                return $instance;
+            });
         });
     }
 

@@ -1,9 +1,8 @@
 <?php
 
-namespace TinyPixel\ActionNetwork\OSDI;
+namespace TinyPixel\ActionNetwork\Resource;
 
 use \ArrayAccess;
-use TinyPixel\ActionNetwork\Service\AbstractService;
 use TinyPixel\ActionNetwork\Traits\Container;
 
 /**
@@ -11,9 +10,11 @@ use TinyPixel\ActionNetwork\Traits\Container;
  *
  * Class definition for OSDI Message Objects
  */
-abstract class OSDIObject implements ArrayAccess
+abstract class AbstractResource implements ArrayAccess
 {
     use Container;
+
+    abstract function setup();
 
     /**
      * Boot.
@@ -33,14 +34,19 @@ abstract class OSDIObject implements ArrayAccess
     public function boot($app): void
     {
         $this->collection = $app->get('collection');
-        $this->osdiPrefix = $app->get('config')->action_network->osdi_prefix;
+        $this->api = $app->get('osdi');
     }
 
     /**
-     * Remove ID prefix.
+     * Make object
+     *
+     * @param Object raw OSDI response
+     * @return \TinyPixel\ActionNetwork\OSDI\AbstractResource
      */
-    protected function removeOSDIPrefix(string $id): string
+    public function make(): AbstractResource
     {
-        return str_replace("{$this->osdiPrefix}:", '', $id);
+        $this->setup();
+
+        return $this;
     }
 }

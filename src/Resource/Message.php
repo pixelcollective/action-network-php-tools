@@ -1,15 +1,15 @@
 <?php
 
-namespace TinyPixel\ActionNetwork\OSDI;
+namespace TinyPixel\ActionNetwork\Resource;
 
-use TinyPixel\ActionNetwork\OSDI\OSDIObject;
+use TinyPixel\ActionNetwork\Resource\AbstractResource;
 
 /**
  * Message
  *
  * Class definition for OSDI Message Objects
  */
-class Message extends OSDIObject
+class Message extends AbstractResource
 {
     /** @var string targets osdi href */
     public $targets;
@@ -23,6 +23,15 @@ class Message extends OSDIObject
     public $body;
 
     public $wrapper;
+
+    public $map = [
+        'id' => '_id',
+    ];
+
+    public function setup()
+    {
+        //
+    }
 
     /**
      * Schema reference

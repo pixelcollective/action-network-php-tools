@@ -23,7 +23,7 @@ return [
     |
     */
 
-    'base' => 'https://actionnetwork.org/api',
+    'base_url' => 'https://actionnetwork.org/api',
 
     /*
     |--------------------------------------------------------------------------

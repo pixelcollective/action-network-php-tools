@@ -131,14 +131,4 @@ abstract class AbstractContainer implements
             return $callable;
         };
     }
-
-    /**
-     * Returns all defined value names.
-     *
-     * @return array An array of value names
-     */
-    public function services(): array
-    {
-        return array_keys($this->values);
-    }
 }

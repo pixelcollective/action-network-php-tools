@@ -17,10 +17,10 @@ class ActionNetworkTinkerwellDriver extends TinkerwellDriver
     public function getAvailableVariables()
     {
         return [
-          '__app' => $this->app,
-          '__osdi' => $this->app->get('osdi'),
-          '__petitions' => $this->app->get('osdi')->get('petitions'),
-          '__people' => $this->app->get('osdi')->get('people'),
+          'app' => $this->app,
+          'api' => $this->app->get('osdi'),
+          'people' => $this->app->get('people'),
+          'tags' => $this->app->get('tags'),
         ];
     }
 
