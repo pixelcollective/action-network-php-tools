@@ -34,7 +34,6 @@ abstract class AbstractResource implements ArrayAccess
     public function boot($app): void
     {
         $this->collection = $app->get('collection');
-        $this->api = $app->get('osdi');
     }
 
     /**
@@ -46,7 +45,6 @@ abstract class AbstractResource implements ArrayAccess
     public function make(): AbstractResource
     {
         $this->setup();
-
         return $this;
     }
 }

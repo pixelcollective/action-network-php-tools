@@ -4,10 +4,8 @@ namespace TinyPixel\ActionNetwork\OSDI;
 
 use TinyPixel\ActionNetwork\Service\AbstractService;
 
-abstract class Endpoint extends AbstractService
+class Request extends AbstractService
 {
-    abstract function transformEmbedded($model, $data);
-
     /**
      * Boot service.
      */
@@ -16,51 +14,32 @@ abstract class Endpoint extends AbstractService
         $this->api = $this->app->get('api');
         $this->collection = $this->app->get('collection');
         $this->config = $this->app->get('config')->action_network;
-        $this->key = "osdi:{$this->endpoint}";
     }
 
     /**
-     * Register service.
+     * Request
      */
-    public function register()
-    {
-        // --
-    }
-
     public function request($request = null, $page = false)
     {
         $data = $this->collection::make(
             $this->api->get($this->getRequestUrl($request), $page)
         )->mapWithKeys(function ($item, $key) {
             $value = is_string($item) ? $this->removeBaseUrl($item) : $item;
+
             return [$this->removeIdPrefixes($key) => $value];
         });
 
         if ($data->has('_links')) {
             $data->put('links', $this->transformLinks($data->get('_links')));
+            $data->forget('_links');
         }
 
         if ($data->has('_embedded')) {
-            $data = $this->makeFromCollection(
-                $this->collection::make($data->get('_embedded')),
-                $this->key
-            )->mapWithKeys(function ($item, $key) {
-                return [$this->removeIdPrefixes($key) => $item];
-            })->map(function ($entry) {
-                if (is_object($entry) && property_exists($entry, '_links')) {
-                    $entry->links = $this->transformLinks($entry->_links);
-                }
-
-                return $entry;
-            })->map(function ($entry) {
-                return $this->transformEmbedded(
-                    $this->app->get("model.$this->model")->make(),
-                    $entry
-                );
-            });
+            $data->put('embedded', $this->collection::make($data->get('_embedded'))->first());
+            $data->forget('_embedded');
         }
 
-        return $data;
+        return (object) $data->toArray();
     }
 
     public function transformLinks($links = [])
@@ -88,28 +67,9 @@ abstract class Endpoint extends AbstractService
          return $links;
     }
 
-    public function makeFromCollection($obj, $property)
-    {
-        if (! $obj->has($property)) {
-            return $obj;
-        }
-
-        $item = $obj->get($property);
-
-        if (is_array($item) || is_object($item)) {
-            return $this->collection::make($item)->mapWithKeys(
-                function ($value, $key) {
-                    return [$this->removeIdPrefixes($key) => $value];
-                }
-            );
-        }
-
-        return null;
-    }
-
     public function getRequestUrl($request)
     {
-        return ! $request ? $this->endpoint : join('/', [$this->endpoint, $this->removeBaseUrl($request)]);
+        return $this->removeBaseUrl($request);
     }
 
     /**

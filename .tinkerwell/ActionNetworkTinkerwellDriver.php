@@ -18,9 +18,10 @@ class ActionNetworkTinkerwellDriver extends TinkerwellDriver
     {
         return [
           'app' => $this->app,
-          'api' => $this->app->get('osdi'),
-          'people' => $this->app->get('people'),
-          'tags' => $this->app->get('tags'),
+          'api' => $this->app->get('api'),
+          'people' => $this->app->get('api.people'),
+          'submissions' => $this->app->get('api.submissions'),
+          'tags' => $this->app->get('api.tags'),
         ];
     }
 

@@ -21,11 +21,24 @@ class People extends Endpoint
 
     public function transformEmbedded($model, $data)
     {
-        $model->setFirstName($data->given_name);
-        $model->setLastName($data->family_name);
-        $model->setAddresses($data->postal_addresses);
-        $model->setEmails($data->email_addresses);
-        $model->setSubmissions($this->app->get('submissions')->request($data->links->get('submissions')));
+        if (!isset($data) || !is_object($data)) {
+            return $data;
+        }
+
+        property_exists($data, 'given_name')
+            && $model->setFirstName($data->given_name);
+
+        property_exists($data, 'last_name')
+            && $model->setLastName($data->family_name);
+
+        property_exists($data, 'postal_addresses')
+            && $model->setAddresses($data->postal_addresses);
+
+        property_exists($data, 'email_addresses')
+            && $model->setEmails($this->collection::make($data->email_addresses));
+
+        property_exists($data, 'links')
+            && $model->setLinks($data->links->all());
 
         return $model;
     }

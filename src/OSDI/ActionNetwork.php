@@ -20,19 +20,11 @@ class ActionNetwork extends AbstractService
     protected $client;
 
     /**
-     * Register service.
-     */
-    public function register()
-    {
-        // --
-    }
-
-    /**
      * Boot service.
      */
     public function boot()
     {
-        $this->client = $this->app->get('client');
+        $this->client = $this->app->get('api.client');
         $this->config = $this->app->get('config')->action_network;
         $this->collection = $this->app->get('collection');
     }
@@ -50,23 +42,6 @@ class ActionNetwork extends AbstractService
         }
 
         return $data;
-    }
-
-    /**
-     * POST handler.
-     *
-     * @param string $reqUri
-     * @return mixed
-     */
-    public function post(object $request, array $resource)
-    {
-        return $this
-            ->makeRequest('POST', $this->requestUrl($request), [
-                'JSON' => json_encode($request),
-                'Content-Length' => strlen(json_encode($request)),
-            ])
-            ->getBody()
-            ->getContents();
     }
 
     /**
@@ -120,9 +95,13 @@ class ActionNetwork extends AbstractService
     {
         $url = str_replace($this->config->base_url . '/', '', $url);
         $url = str_replace($this->config->version . '/', '', $url);
+
         return $url;
     }
 
+    /**
+     * Paging
+     */
     protected function pageProperties($body)
     {
         return [

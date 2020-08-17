@@ -24,6 +24,7 @@ class Submissions extends Endpoint
         $model->setCreated($data->created_date);
         $model->setModified($data->modified_date);
         $model->setReferrer($data->{"action_network:referrer_data"});
+        $model->setLinks($data->links);
 
         return $model;
     }

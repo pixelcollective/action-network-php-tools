@@ -6,6 +6,7 @@ use Dotenv\Dotenv;
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
 use TinyPixel\ActionNetwork\OSDI\ActionNetwork;
+use TinyPixel\ActionNetwork\OSDI\Request;
 use TinyPixel\ActionNetwork\OSDI\People;
 use TinyPixel\ActionNetwork\OSDI\Tags;
 use TinyPixel\ActionNetwork\OSDI\Submissions;
@@ -39,20 +40,21 @@ class Bootstrap
     ];
 
     protected $instances = [
-        'client' => Client::class,
+        'api.client' => Client::class,
     ];
 
     /** @var array services */
     protected $services = [
         'form' => Form::class,
-        'osdi' => ActionNetwork::class,
-        'person' => Person::class,
-        'people' => People::class,
-        'petition' => Petition::class,
-        'submission' => Submission::class,
-        'submissions' => Submissions::class,
-        'tag' => Tag::class,
-        'tags' => Tags::class,
+        'api' => ActionNetwork::class,
+        'api.request' => Request::class,
+        'api.people' => People::class,
+        'api.submissions' => Submissions::class,
+        'api.tags' => Tags::class,
+        'model.person' => Person::class,
+        'model.petition' => Petition::class,
+        'model.submission' => Submission::class,
+        'model.tag' => Tag::class,
     ];
 
     /**
@@ -103,8 +105,13 @@ class Bootstrap
         Collection::make($this->services)->each(function ($service, $name) {
             $this->app->set($name, function () use ($service) {
                 $instance = new $service($this->app);
-                $instance->register($this->app);
-                $instance->boot($this->app);
+                if (method_exists($instance, 'register')) {
+                    $instance->register($this->app);
+                }
+
+                if (method_exists($instance, 'boot')) {
+                    $instance->boot($this->app);
+                }
 
                 return $instance;
             });

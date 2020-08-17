@@ -20,8 +20,6 @@ class Person extends AbstractResource
 
     public $addresses;
 
-    public $submissions;
-
     public function setup()
     {
         $this->name = (object) [
@@ -90,24 +88,19 @@ class Person extends AbstractResource
         return $this->addresses->first()->address;
     }
 
+    public function getLink($link)
+    {
+        return $this->links[$link];
+    }
+
     public function getLinks()
     {
-        return $this->links;
+        return property_exists($this, 'links') ? $this->links : null;
     }
 
     public function setLinks($links)
     {
         $this->links = $links;
-    }
-
-    public function setSubmissions($submissions)
-    {
-        $this->submissions = $submissions;
-    }
-
-    public function getSubmissions()
-    {
-        return $this->submissions;
     }
 
     public function getTags()

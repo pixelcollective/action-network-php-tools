@@ -1,16 +1,21 @@
 # Action Network PHP Tools
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Gitter](https://img.shields.io/badge/chat-on%20gitter-purple.svg)](https://gitter.im/Tiny-Pixel/Traefik-ify?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 **IMPORTANT:** This project is in alpha development. Help always appreciated!
 
-[Action Network](https://actionnetwork.org) PHP library with namespacing, composer autoloading, and an object-oriented focus.
-Utilizes the Guzzle HTTP client library for streaming API responses.
+PHP library for [Action Network](https://actionnetwork.org).
 
-Licensed MIT.
+## Get started
 
-## Installation
+- Add key to `.env` file.
+- Change values in `config` dir to meet your needs.
 
-`composer require tiny-pixel/action-network`
+## Example usage
+
+Check out the usage dir.
+
+[A simple example from the PHP REPL I use](https://tinkerwell.app/shares/kellymears/ddba3adc-b8cb-4ac0-b9d6-9b62f45cebfe)
 
 ## Acknowledgements
 
